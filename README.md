@@ -49,10 +49,10 @@ Use this checklist together with the files in requirements/ when implementing th
 
 8. Tests (Scoped for 1.5 Hours)
 
-- [ ] Implement unit tests for character limits, reply depth, and like/unlike rules per requirements/testing-requirements.md.
-- [ ] Implement minimal integration tests for register/login/post/feed, like, reply, and key negative cases.
-- [ ] Implement 1–2 Playwright E2E tests (login + create post, character counter boundary behavior).
-- [ ] Implement logging tests that mock logger.ts and assert action/userId/success and privacy constraints.
+- [x] Implement unit tests for character limits, reply depth, and like/unlike rules per requirements/testing-requirements.md.
+- [x] Implement minimal integration tests for register/login/post/feed, like, reply, and key negative cases.
+- [x] Implement 1–2 Playwright E2E tests (login + create post, character counter boundary behavior).
+- [x] Implement logging tests that mock logger.ts and assert action/userId/success and privacy constraints.
 
 9. Final NFR and Requirements Sanity Check
 

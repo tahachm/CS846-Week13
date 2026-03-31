@@ -12,9 +12,7 @@ import {
   unlikePostAction,
 } from "@/app/actions/posts";
 import { Avatar } from "@/app/components/Avatar";
-
-const POST_MAX_LENGTH = 280;
-const REPLY_MAX_LENGTH = 280;
+import { POST_MAX_LENGTH, REPLY_MAX_LENGTH } from "@/lib/validation";
 
 type SessionUser = {
   id: number;

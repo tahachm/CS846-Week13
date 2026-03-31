@@ -3,8 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireCurrentUser } from "@/lib/auth";
 import { logInfo, logWarn } from "@/lib/logger";
-
-const BIO_MAX_LENGTH = 160;
+import { BIO_MAX_LENGTH } from "@/lib/validation";
 
 export default async function EditProfilePage() {
   const user = await requireCurrentUser();

@@ -1,8 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { logInfo, logWarn, logError } from "@/lib/logger";
-
-const POST_MAX_LENGTH = 280;
-const REPLY_MAX_LENGTH = 280;
+import { POST_MAX_LENGTH, REPLY_MAX_LENGTH } from "@/lib/validation";
 
 type Result<T> = { success: true; data: T } | { success: false; error: string };
 
