@@ -42,7 +42,8 @@ export async function registerUser(input: {
       },
     });
 
-    cookies().set(SESSION_COOKIE_NAME, String(user.id), {
+    const cookieStore = await cookies();
+    cookieStore.set(SESSION_COOKIE_NAME, String(user.id), {
       httpOnly: true,
       sameSite: "lax",
       path: "/",
@@ -115,7 +116,8 @@ export async function loginUser(input: {
       return { success: false, error: "Invalid credentials" };
     }
 
-    cookies().set(SESSION_COOKIE_NAME, String(user.id), {
+    const cookieStore = await cookies();
+    cookieStore.set(SESSION_COOKIE_NAME, String(user.id), {
       httpOnly: true,
       sameSite: "lax",
       path: "/",
@@ -140,7 +142,7 @@ export async function loginUser(input: {
 }
 
 export async function logoutUser(): Promise<void> {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const current = cookieStore.get(SESSION_COOKIE_NAME);
 
   if (current) {
@@ -156,7 +158,7 @@ export async function logoutUser(): Promise<void> {
 }
 
 export async function getCurrentUser(): Promise<SessionUser | null> {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const current = cookieStore.get(SESSION_COOKIE_NAME);
 
   if (!current) return null;
