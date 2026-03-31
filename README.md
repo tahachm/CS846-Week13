@@ -44,8 +44,8 @@ Use this checklist together with the files in requirements/ when implementing th
 
 7. Database Seeding
 
-- [ ] Implement prisma/seed.ts according to requirements/seeding-requirements.md (5–10 users, ~50 posts, some replies and likes).
-- [ ] Configure prisma db seed and verify seeding runs successfully on a fresh database.
+- [x] Implement prisma/seed.ts according to requirements/seeding-requirements.md (5–10 users, ~50 posts, some replies and likes).
+- [x] Configure prisma db seed and verify seeding runs successfully on a fresh database.
 
 8. Tests (Scoped for 1.5 Hours)
 
@@ -60,3 +60,55 @@ Use this checklist together with the files in requirements/ when implementing th
 - [ ] Note any deliberate omissions or simplifications for the 1.5-hour scope.
 
 Refer to the markdown files under requirements/ for detailed behavior, limits, testing scope, logging format, and seeding expectations.
+
+## How to Run This Project From Scratch
+
+The Next.js app lives in the `app/` folder. To run it on a new machine or after cloning the repo:
+
+1. Install dependencies
+   - `cd app`
+   - `npm install`
+
+2. Set up the SQLite database schema
+   - Ensure `DATABASE_URL` is set (for local dev this defaults to `file:./dev.db` in the `app/` directory via `prisma.config.ts`).
+   - Run migrations to create the schema:
+     - `npx prisma migrate dev`
+
+3. Seed the development database
+   - Run the Prisma seed command (configured in `prisma.config.ts` to use `tsx prisma/seed.ts`):
+     - `npx prisma db seed`
+   - This will create a fresh `dev.db` with:
+     - 8 users (all with password `password123`),
+     - 56 posts,
+     - 20 replies,
+     - 32 likes.
+
+4. Start the dev server
+   - From `app/`:
+     - `npm run dev`
+   - Then open `http://localhost:3000` in your browser.
+
+## SQLite dev.db and Git
+
+- The SQLite file used for local development is `app/dev.db` (via `DATABASE_URL = "file:./dev.db"`).
+- Right now, it is committed to the repository, which is acceptable for a small course project but not required for others to run the app.
+
+If you prefer not to commit `dev.db` going forward:
+
+1. Add it to `.gitignore`
+   - In `app/.gitignore`, add a line:
+     - `dev.db`
+
+2. Remove it from git tracking (optional cleanup)
+   - From `app/` (after adding it to `.gitignore`):
+     - `git rm --cached dev.db`
+     - `git commit -m "Stop tracking dev.db"`
+
+3. Recreating dev.db locally
+   - Anyone who clones the repo can recreate `dev.db` by:
+     - `cd app`
+     - `npm install` (first time)
+     - `npx prisma migrate dev` (creates the schema)
+     - `npx prisma db seed` (populates sample data)
+
+   After that, they can run `npm run dev` and use the app as if the database had been checked in.
