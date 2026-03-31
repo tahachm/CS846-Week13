@@ -36,11 +36,11 @@ Use this checklist together with the files in requirements/ when implementing th
 
 6. UI (Feed, Profile, Compose, Interactions)
 
-- [ ] Build global feed page with manual refresh and optimistic like/reply behavior.
-- [ ] Build profile page showing a user’s posts and a link from usernames to profiles.
-- [ ] Implement post/reply composer with X / N counters and red error state when over the limit.
-- [ ] Ensure only authenticated users can post, reply, like, or edit profiles.
- - [ ] Follow layout, component, and state guidelines from requirements/ui-design.md when building the UI.
+- [x] Build global feed page with manual refresh and optimistic like/reply behavior.
+- [x] Build profile page showing a user’s posts and a link from usernames to profiles.
+- [x] Implement post/reply composer with X / N counters and red error state when over the limit.
+- [x] Ensure only authenticated users can post, reply, like, or edit profiles.
+- [x] Follow layout, component, and state guidelines from requirements/ui-design.md when building the UI.
 
 7. Database Seeding
 

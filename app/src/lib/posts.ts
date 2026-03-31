@@ -233,6 +233,18 @@ export async function unlikePost(
   }
 }
 
+export type FeedReply = {
+  id: number;
+  content: string;
+  createdAt: Date;
+  author: {
+    id: number;
+    username: string;
+    displayName: string | null;
+    avatarKey: string | null;
+  };
+};
+
 export type FeedItem = {
   id: number;
   content: string;
@@ -246,6 +258,7 @@ export type FeedItem = {
   likeCount: number;
   replyCount: number;
   likedByCurrentUser: boolean;
+  replies: FeedReply[];
 };
 
 export async function getGlobalFeed(
@@ -268,6 +281,19 @@ export async function getGlobalFeed(
         _count: {
           select: { likes: true, replies: true },
         },
+        replies: {
+          orderBy: { createdAt: "asc" },
+          include: {
+            author: {
+              select: {
+                id: true,
+                username: true,
+                displayName: true,
+                avatarKey: true,
+              },
+            },
+          },
+        },
         likes: viewerUserId
           ? {
               where: { userId: viewerUserId },
@@ -287,6 +313,12 @@ export async function getGlobalFeed(
       likedByCurrentUser: viewerUserId
         ? post.likes.length > 0
         : false,
+      replies: post.replies.map((reply) => ({
+        id: reply.id,
+        content: reply.content,
+        createdAt: reply.createdAt,
+        author: reply.author,
+      })),
     }));
 
     logInfo("refresh_feed", {
@@ -312,11 +344,28 @@ export async function getUserFeed(
   profileUsername: string,
   viewerUserId: number | null,
   limit = 50,
-): Promise<Result<{ profileUserId: number; items: FeedItem[] }>> {
+): Promise<
+  Result<{
+    profileUser: {
+      id: number;
+      username: string;
+      displayName: string | null;
+      bio: string | null;
+      avatarKey: string | null;
+    };
+    items: FeedItem[];
+  }>
+> {
   try {
     const profileUser = await prisma.user.findUnique({
       where: { username: profileUsername },
-      select: { id: true },
+      select: {
+        id: true,
+        username: true,
+        displayName: true,
+        bio: true,
+        avatarKey: true,
+      },
     });
 
     if (!profileUser) {
@@ -346,6 +395,19 @@ export async function getUserFeed(
         _count: {
           select: { likes: true, replies: true },
         },
+        replies: {
+          orderBy: { createdAt: "asc" },
+          include: {
+            author: {
+              select: {
+                id: true,
+                username: true,
+                displayName: true,
+                avatarKey: true,
+              },
+            },
+          },
+        },
         likes: viewerUserId
           ? {
               where: { userId: viewerUserId },
@@ -365,6 +427,12 @@ export async function getUserFeed(
       likedByCurrentUser: viewerUserId
         ? post.likes.length > 0
         : false,
+      replies: post.replies.map((reply) => ({
+        id: reply.id,
+        content: reply.content,
+        createdAt: reply.createdAt,
+        author: reply.author,
+      })),
     }));
 
     logInfo("refresh_profile", {
@@ -375,7 +443,7 @@ export async function getUserFeed(
       resultCount: items.length,
     });
 
-    return { success: true, data: { profileUserId: profileUser.id, items } };
+    return { success: true, data: { profileUser, items } };
   } catch {
     logError("refresh_profile", {
       action: "refresh_profile",
