@@ -259,12 +259,19 @@ export type FeedItem = {
   replies: FeedReply[];
 };
 
+
 export async function getGlobalFeed(
   viewerUserId: number | null,
   limit = 50,
+  before?: Date,
 ): Promise<Result<FeedItem[]>> {
   try {
     const posts = await prisma.post.findMany({
+      where: before
+        ? {
+          createdAt: { lt: before },
+        }
+        : undefined,
       orderBy: { createdAt: "desc" },
       take: limit,
       include: {
@@ -342,6 +349,7 @@ export async function getUserFeed(
   profileUsername: string,
   viewerUserId: number | null,
   limit = 50,
+  before?: Date,
 ): Promise<
   Result<{
     profileUser: {
@@ -378,7 +386,9 @@ export async function getUserFeed(
     }
 
     const posts = await prisma.post.findMany({
-      where: { authorId: profileUser.id },
+      where: before
+        ? { authorId: profileUser.id, createdAt: { lt: before } }
+        : { authorId: profileUser.id },
       orderBy: { createdAt: "desc" },
       take: limit,
       include: {

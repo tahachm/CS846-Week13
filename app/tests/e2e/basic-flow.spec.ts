@@ -30,5 +30,7 @@ test("login and create post appears in feed", async ({ page }) => {
   await textarea.fill(content);
   await page.getByRole("button", { name: "Post" }).click();
 
-  await expect(page.getByText(content)).toBeVisible();
+  // Use a more specific locator to avoid strict mode violations
+  const postArticle = page.getByRole("article").filter({ hasText: content }).first();
+  await expect(postArticle).toBeVisible();
 });

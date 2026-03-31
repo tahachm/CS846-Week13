@@ -39,6 +39,11 @@ type PostErrorState = {
   replyError?: string;
 };
 
+function formatTimestamp(value: Date | string): string {
+  const date = value instanceof Date ? value : new Date(value);
+  return date.toISOString().replace("T", " ").slice(0, 19);
+}
+
 export function FeedClient({ initialItems, currentUser, context, profileUser }: FeedClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -46,6 +51,18 @@ export function FeedClient({ initialItems, currentUser, context, profileUser }: 
   const [postErrors, setPostErrors] = useState<Record<number | string, PostErrorState>>({});
 
   const [items, setItems] = useState<OptimisticPost[]>(initialItems);
+
+  const persistedItems = items.filter((item) => !item.isOptimistic);
+  const lastPersisted =
+    persistedItems.length > 0 ? persistedItems[persistedItems.length - 1] : null;
+  const nextCursor = lastPersisted
+    ? encodeURIComponent(
+        (lastPersisted.createdAt instanceof Date
+          ? lastPersisted.createdAt
+          : new Date(lastPersisted.createdAt)
+        ).toISOString(),
+      )
+    : null;
 
   const handleManualRefresh = () => {
     router.refresh();
@@ -230,12 +247,20 @@ export function FeedClient({ initialItems, currentUser, context, profileUser }: 
             Log in
           </Link>
         ) : (
-          <Link
-            href="/profile/edit"
-            className="mt-4 rounded border border-gray-300 px-3 py-2 text-sm font-medium hover:bg-gray-50"
-          >
-            Edit Profile
-          </Link>
+          <>
+            <Link
+              href="/profile/edit"
+              className="mt-4 rounded border border-gray-300 px-3 py-2 text-sm font-medium hover:bg-gray-50"
+            >
+              Edit Profile
+            </Link>
+            <Link
+              href="/logout"
+              className="mt-2 rounded border border-gray-300 px-3 py-2 text-sm font-medium hover:bg-gray-50"
+            >
+              Log out
+            </Link>
+          </>
         )}
       </nav>
 
@@ -352,7 +377,11 @@ export function FeedClient({ initialItems, currentUser, context, profileUser }: 
 
         <section className="rounded-lg bg-white p-4 shadow">
           {items.length === 0 ? (
-            <p className="text-sm text-gray-500">No posts yet.</p>
+            <p className="text-sm text-gray-500">
+              {context === "profile"
+                ? "This user hasn’t posted anything yet."
+                : "No posts yet."}
+            </p>
           ) : (
             <ul className="space-y-4">
               {items.map((post) => (
@@ -369,6 +398,23 @@ export function FeedClient({ initialItems, currentUser, context, profileUser }: 
             </ul>
           )}
         </section>
+
+        {nextCursor && (
+          <div className="mt-3 flex justify-center">
+            <Link
+              href={
+                context === "global"
+                  ? `/?before=${nextCursor}`
+                  : profileUser
+                  ? `/users/${profileUser.username}?before=${nextCursor}`
+                  : "/"
+              }
+              className="rounded border border-gray-300 px-3 py-1 text-xs font-medium hover:bg-gray-50"
+            >
+              Older posts
+            </Link>
+          </div>
+        )}
       </main>
     </div>
   );
@@ -407,7 +453,7 @@ function PostCard({ post, currentUser, onToggleLike, onCreateReply, errorState }
           </Link>
           <span className="text-xs text-gray-500">@{post.author.username}</span>
           <span className="ml-auto text-xs text-gray-400">
-            {post.createdAt.toLocaleString()}
+            {formatTimestamp(post.createdAt)}
           </span>
         </header>
         <p className="mt-1 text-sm text-gray-900">{post.content}</p>
@@ -463,7 +509,7 @@ function PostCard({ post, currentUser, onToggleLike, onCreateReply, errorState }
                     </Link>
                     <span className="text-gray-500">@{reply.author.username}</span>
                     <span className="ml-auto text-gray-400">
-                      {reply.createdAt.toLocaleString()}
+                      {formatTimestamp(reply.createdAt)}
                     </span>
                   </div>
                   <p className="text-gray-900">{reply.content}</p>

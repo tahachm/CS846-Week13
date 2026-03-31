@@ -5,17 +5,22 @@ import { getUserFeed } from "@/lib/posts";
 import { FeedClient } from "@/app/components/FeedClient";
 
 type PageProps = {
-  params: { username: string };
+  params: Promise<{ username: string }>;
+  searchParams: Promise<{ before?: string }>;
 };
 
 export const dynamic = "force-dynamic";
 
-export default async function UserProfilePage({ params }: PageProps) {
+export default async function UserProfilePage({ params, searchParams }: PageProps) {
+  const { username } = await params;
+  const { before } = await searchParams;
+  const beforeDate = before ? new Date(before) : undefined;
   const sessionUser = await getCurrentUser();
   const feedResult = await getUserFeed(
-    params.username,
+    username,
     sessionUser?.id ?? null,
     50,
+    beforeDate,
   );
 
   if (!feedResult.success) {

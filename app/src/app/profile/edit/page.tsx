@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
 import { requireCurrentUser } from "@/lib/auth";
 import { logInfo, logWarn } from "@/lib/logger";
 import { BIO_MAX_LENGTH } from "@/lib/validation";
+import { BioFieldWithCounter } from "@/app/profile/BioFieldWithCounter";
 
 export default async function EditProfilePage() {
   const user = await requireCurrentUser();
@@ -87,48 +89,58 @@ export default async function EditProfilePage() {
               className="w-full rounded border px-3 py-2 text-sm"
             />
           </div>
+          <BioFieldWithCounter
+            initialBio={existing?.bio ?? ""}
+            maxLength={BIO_MAX_LENGTH}
+          />
           <div>
-            <label className="mb-1 block text-sm font-medium" htmlFor="bio">
-              Bio
-            </label>
-            <textarea
-              id="bio"
-              name="bio"
-              defaultValue={existing?.bio ?? ""}
-              maxLength={BIO_MAX_LENGTH}
-              className="w-full rounded border px-3 py-2 text-sm"
-            />
-            <p className="mt-1 text-xs text-gray-500">
-              Up to {BIO_MAX_LENGTH} characters.
-            </p>
-          </div>
-          <div>
-            <label
-              className="mb-1 block text-sm font-medium"
-              htmlFor="avatarKey"
-            >
-              Avatar
-            </label>
-            <select
-              id="avatarKey"
-              name="avatarKey"
-              defaultValue={existing?.avatarKey ?? ""}
-              className="w-full rounded border px-3 py-2 text-sm"
-            >
-              <option value="">No avatar</option>
+            <span className="mb-1 block text-sm font-medium">Avatar</span>
+            <div className="grid grid-cols-5 gap-3">
+              <label className="flex flex-col items-center gap-1 text-xs text-gray-600">
+                <input
+                  type="radio"
+                  name="avatarKey"
+                  value=""
+                  defaultChecked={!existing?.avatarKey}
+                  className="peer sr-only"
+                />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-dashed border-gray-300 bg-gray-50 text-[10px] font-medium peer-checked:border-blue-600 peer-checked:ring-2 peer-checked:ring-blue-500">
+                  None
+                </div>
+              </label>
               {avatarOptions.map((key) => (
-                <option key={key} value={key}>
-                  {key}
-                </option>
+                <label
+                  key={key}
+                  className="flex flex-col items-center gap-1 text-xs text-gray-700"
+                >
+                  <input
+                    type="radio"
+                    name="avatarKey"
+                    value={key}
+                    defaultChecked={existing?.avatarKey === key}
+                    className="peer sr-only"
+                  />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-gray-300 bg-gray-100 text-[10px] font-semibold capitalize peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-700 peer-checked:ring-2 peer-checked:ring-blue-500">
+                    {key}
+                  </div>
+                </label>
               ))}
-            </select>
+            </div>
           </div>
-          <button
-            type="submit"
-            className="w-full rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
-            Save changes
-          </button>
+          <div className="flex items-center justify-end gap-3">
+            <Link
+              href={`/users/${user.username}`}
+              className="rounded border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </Link>
+            <button
+              type="submit"
+              className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            >
+              Save changes
+            </button>
+          </div>
         </form>
       </div>
     </main>

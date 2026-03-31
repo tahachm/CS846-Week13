@@ -5,7 +5,12 @@ import { getCurrentUser, loginUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-export default async function LoginPage() {
+type LoginPageProps = {
+  searchParams: Promise<{ error?: string }>;
+};
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const { error } = await searchParams;
   const currentUser = await getCurrentUser();
   if (currentUser) {
     redirect("/");
@@ -62,6 +67,11 @@ export default async function LoginPage() {
             Log in
           </button>
         </form>
+        {error && (
+          <div className="mt-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
+            {error}
+          </div>
+        )}
         <p className="mt-4 text-center text-sm text-gray-600">
           Need an account?{" "}
           <Link href="/register" className="text-blue-600 hover:underline">

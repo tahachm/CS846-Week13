@@ -5,7 +5,12 @@ import { registerUser, getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-export default async function RegisterPage() {
+type RegisterPageProps = {
+  searchParams: Promise<{ error?: string }>;
+};
+
+export default async function RegisterPage({ searchParams }: RegisterPageProps) {
+  const { error } = await searchParams;
   const currentUser = await getCurrentUser();
   if (currentUser) {
     redirect("/");
@@ -76,6 +81,11 @@ export default async function RegisterPage() {
             Sign up
           </button>
         </form>
+        {error && (
+          <div className="mt-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
+            {error}
+          </div>
+        )}
         <p className="mt-4 text-center text-sm text-gray-600">
           Already have an account?{" "}
           <Link href="/login" className="text-blue-600 hover:underline">
